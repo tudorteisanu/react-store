@@ -47,10 +47,9 @@ export default class FileUploader extends Component<any, any> {
   };
 
   uploadFile = async (data: any): Promise<void> => {
-    const file: any = await http
-      .setHeaders({ "Content-Type": "multipart/form-data" })
-      .setToken()
-      .post(ApiRoutes.Upload, data);
+    const file: any = await http.post(ApiRoutes.Upload, data, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
 
     this.setState({ file });
     this.props.onUpload(file.id);

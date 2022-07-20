@@ -1,42 +1,58 @@
-import React from "react";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
-import { PageRoutes } from "../ts/enum";
+import React, { Suspense } from "react";
+import { BrowserRouter, Route, Routes, useNavigate } from "react-router-dom";
+import goods from "./modules/goods";
+import general from "./modules/general";
+import auth from "./modules/auth";
+import { PageLayout } from "../ts/enum";
+import { GlobalProvider } from "../context";
+import { LoadingSpinner } from "../components/base/Loading";
 
-import Home from "../pages/home";
-import About from "../pages/about";
-import Login from "../pages/auth/login";
-import Register from "../pages/auth/register";
-import ForgotPassword from "../pages/auth/forgot-password";
-import ResetPassword from "../pages/auth/reset-password";
-import InvalidResetToken from "../pages/auth/invalid-reset-token";
-import CreateGood from "../pages/goods/CreateGood";
-import Goods from "../pages/goods/goods";
+const routes = [...general, ...goods, ...auth];
+
+const LayoutType = {
+  auth: React.lazy(() => import("../layouts/auth")),
+  default: React.lazy(() => import("../layouts/default")),
+} as any;
+
+class Layout extends React.Component<any, any> {
+  render() {
+    const layoutName = this.props.route.layout || PageLayout.Default;
+
+    const Default = LayoutType[layoutName];
+    return (
+      <Default>
+        <Main>{this.props.children}</Main>
+      </Default>
+    );
+  }
+}
+
+function Main({ children }: any) {
+  let navigate = useNavigate();
+
+  return (
+    <GlobalProvider value={{ navigate, user: { id: 2 }, token: "asdfasd" }}>
+      {children}
+    </GlobalProvider>
+  );
+}
 
 export default class BaseRouter extends React.Component<any, any> {
   render() {
     return (
       <BrowserRouter>
         <Routes>
-          {/*auth*/}
-          <Route path={PageRoutes.Login} element={<Login />} />
-          <Route path={PageRoutes.Register} element={<Register />} />
-          <Route
-            path={PageRoutes.ForgotPassword}
-            element={<ForgotPassword />}
-          />
-          <Route path={PageRoutes.ResetPassword} element={<ResetPassword />} />
-          <Route
-            path={PageRoutes.InvalidResetPassword}
-            element={<InvalidResetToken />}
-          />
-          {/*auth end*/}
-
-          {/*goods*/}
-          <Route path={PageRoutes.GoodsList} caseSensitive element={<Goods />} />
-          <Route path={PageRoutes.GoodsCreate} caseSensitive element={<CreateGood />} />
-          {/*end*/}
-          <Route path={PageRoutes.Home} caseSensitive element={<Home />} />
-          <Route path={PageRoutes.About} element={<About />} />
+          {routes.map((route: any, index: number) => (
+            <Route
+              key={index}
+              path={route.path}
+              element={
+                <Suspense fallback={<LoadingSpinner />}>
+                  <Layout route={route}>{<route.element />}</Layout>
+                </Suspense>
+              }
+            />
+          ))}
         </Routes>
       </BrowserRouter>
     );

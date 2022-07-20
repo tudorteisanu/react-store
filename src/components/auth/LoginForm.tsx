@@ -1,7 +1,7 @@
 import React from "react";
 import FormInput from "../form/FormInput";
 import { NavLink } from "react-router-dom";
-import { PageRoutes } from "../../ts/enum";
+import { ApiRoutes, PageRoutes } from "../../ts/enum";
 import Button from "../form/Button";
 import Checkbox from "../form/Checkbox";
 import Card from "../base/Card";
@@ -9,19 +9,17 @@ import LoginFooter from "./LoginFooter";
 import CardHeading from "../base/CardHeading";
 import http from "../../services/http";
 import { GlobalContext } from "../../context";
+import { connect } from "react-redux";
+import { login } from "../../store/actions/auth";
 
-export default class LoginForm extends React.Component<any, any> {
+class LoginForm extends React.Component<any, any> {
   static contextType = GlobalContext;
 
   constructor(props: any) {
     super(props);
     this.state = {
-      form: { email: "", password: "" },
+      form: { email: "teisanutudort@gmail.com", password: "123456789" },
     };
-  }
-
-  navigate(url: string): void {
-    (this.context as any)(url);
   }
 
   onInput(event: any, key: string): void {
@@ -31,17 +29,19 @@ export default class LoginForm extends React.Component<any, any> {
     });
   }
 
-  login = async (event: any): Promise<void> => {
+  async login(event: any): Promise<void> {
     try {
       event.preventDefault();
-      const response: any = await http.post("/auth/login", this.state.form);
-      const { token } = response;
-      localStorage.setItem("token", token);
-      this.navigate(PageRoutes.Home);
-    } catch (e) {
-      console.log(e);
+      const response: any = await http.post(ApiRoutes.Login, this.state.form);
+      this.props.login(response);
+    } catch (e: any) {
+      this.setState({ ...this.state, errorMessage: e?.message });
+
+      setTimeout(() => {
+        this.setState({ ...this.state, errorMessage: null });
+      }, 5000);
     }
-  };
+  }
   render() {
     return (
       <Card
@@ -54,12 +54,19 @@ export default class LoginForm extends React.Component<any, any> {
         }
       >
         {" "}
-        <form className="space-y-6" onSubmit={this.login}>
+        <form
+          className="space-y-6"
+          onSubmit={(event: any) => this.login(event)}
+        >
+          <div className="w-full">
+            <FormInput
+              value={this.props.form?.email}
+              label={"Email"}
+              onInput={(e: any) => this.onInput(e, "email")}
+            />
+          </div>
           <FormInput
-            label={"Email"}
-            onInput={(e: any) => this.onInput(e, "email")}
-          />
-          <FormInput
+            value={this.props.form?.password}
             label="Password"
             type="password"
             onInput={(e: any) => this.onInput(e, "password")}
@@ -80,8 +87,19 @@ export default class LoginForm extends React.Component<any, any> {
           <div>
             <Button>Sing in</Button>
           </div>
+          <div>
+            {this.state.errorMessage ? (
+              <div className="w-full text-center border border-red-500 p-2 transition-all rounded-md">
+                <span className="text-red-500 ">{this.state.errorMessage}</span>
+              </div>
+            ) : (
+              <div></div>
+            )}
+          </div>
         </form>
       </Card>
     );
   }
 }
+
+export default connect(null, { login })(LoginForm);

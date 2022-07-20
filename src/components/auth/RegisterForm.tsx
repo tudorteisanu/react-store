@@ -7,7 +7,7 @@ import Checkbox from "../form/Checkbox";
 import Card from "../base/Card";
 import LoginFooter from "./LoginFooter";
 import CardHeading from "../base/CardHeading";
-import { HttpService } from "../../services/http";
+import HttpService from "../../services/http";
 import { GlobalContext } from "../../context";
 
 export default class RegisterForm extends React.Component<any, any> {
@@ -19,7 +19,7 @@ export default class RegisterForm extends React.Component<any, any> {
     this.state = {
       form: { email: "", password: "" },
     };
-    this.http = new HttpService();
+    this.http = HttpService;
   }
 
   onInput(event: any, key: string): void {
@@ -27,7 +27,6 @@ export default class RegisterForm extends React.Component<any, any> {
       ...this.state,
       form: { ...this.state.form, [key]: event.target.value },
     });
-    console.log(this.state, "login form");
   }
 
   navigate(url: string) {

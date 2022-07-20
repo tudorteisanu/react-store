@@ -14,7 +14,6 @@ export default class Header extends React.Component<IProps, IState> {
   ];
 
   linkClass(link: { isActive: boolean }): string {
-    console.log(link)
     if (link.isActive) {
       return "font-bold text-red-500 mx-2";
     }

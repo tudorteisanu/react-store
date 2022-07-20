@@ -3,7 +3,7 @@ import FormInput from "../form/FormInput";
 import Button from "../form/Button";
 import Card from "../base/Card";
 import CardHeading from "../base/CardHeading";
-import { HttpService } from "../../services/http";
+import HttpService from "../../services/http";
 import { ApiRoutes } from "../../ts/enum";
 
 export default class ForgotPasswordForm extends React.Component<any, any> {
@@ -14,7 +14,7 @@ export default class ForgotPasswordForm extends React.Component<any, any> {
     this.state = {
       form: { email: "" },
     };
-    this.http = new HttpService();
+    this.http = HttpService;
   }
 
   onInput(event: any, key: string): void {
@@ -22,17 +22,12 @@ export default class ForgotPasswordForm extends React.Component<any, any> {
       ...this.state,
       form: { ...this.state.form, [key]: event.target.value },
     });
-    console.log(this.state, "login form");
   }
 
   submit = async (event: any): Promise<void> => {
     try {
       event.preventDefault();
-      const response = await this.http.post(
-          ApiRoutes.ForgotPassword,
-        this.state.form
-      );
-      console.log(response);
+      await this.http.post(ApiRoutes.ForgotPassword, this.state.form);
     } catch (e) {
       console.log(e);
     }

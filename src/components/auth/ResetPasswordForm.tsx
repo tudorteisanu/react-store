@@ -3,7 +3,7 @@ import FormInput from "../form/FormInput";
 import Button from "../form/Button";
 import Card from "../base/Card";
 import CardHeading from "../base/CardHeading";
-import { HttpService } from "../../services/http";
+import HttpService from "../../services/http";
 import { ApiRoutes, PageRoutes } from "../../ts/enum";
 import { GlobalContext } from "../../context";
 
@@ -16,7 +16,7 @@ class ResetPasswordForm extends React.Component<any, any> {
       form: { password: "", passwordConfirmation: "" },
       token: this.setToken(),
     };
-    this.http = new HttpService();
+    this.http = HttpService;
   }
 
   async componentDidMount() {
@@ -54,7 +54,6 @@ class ResetPasswordForm extends React.Component<any, any> {
 
   checkResetToken = async (): Promise<void> => {
     try {
-      console.log(this.state);
       await this.http.post(ApiRoutes.CheckResetPassword, {
         token: this.state.token,
       });

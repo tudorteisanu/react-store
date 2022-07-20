@@ -21,3 +21,8 @@ export enum ApiRoutes {
   Goods = "/goods",
   Upload = "/upload",
 }
+
+export enum PageLayout {
+  Default = "default",
+  Auth = "auth",
+}
